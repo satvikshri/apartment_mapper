@@ -76,17 +76,6 @@
       font-size: 12px;
       padding: 4px 6px;
     }
-
-    .map-link-button {
-      margin-top: 6px;
-      display: inline-block;
-      background: #007bff;
-      color: white;
-      padding: 5px 10px;
-      font-size: 12px;
-      border-radius: 6px;
-      text-decoration: none;
-    }
   </style>
 </head>
 <body>
@@ -99,7 +88,6 @@
   <input id="coordinates" placeholder="Latitude, Longitude" required />
   <input id="rent" placeholder="Rent Info and map link" required />
   <input id="contact" placeholder="Contact Number" required />
-  <input id="mapLink" placeholder="Google Maps Link (optional)" />
   <input id="images" type="file" multiple accept="image/*" />
   <button onclick="submitForm()" id="submit-button">Add Apartment</button>
 </div>
@@ -132,87 +120,3 @@
     const form = document.getElementById('form-container');
     const btn = document.getElementById('form-toggle-btn');
     form.classList.toggle('collapsed');
-    btn.textContent = form.classList.contains('collapsed') ? 'Show' : 'Hide';
-  }
-
-  function createPopupContent(apartment, marker) {
-    const images = apartment.image?.split(',') || [];
-    const imageHTML = images.map(img => `<img class="popup-img" src="${img}" alt="Apartment Image"/>`).join('');
-    const mapBtn = apartment.mapLink
-      ? `<a class="map-link-button" target="_blank" href="${apartment.mapLink}">Go to Maps</a><br/>`
-      : '';
-
-    return `
-      <div style="max-width: 250px;">
-        <strong>${apartment.name}</strong><br/>
-        ${imageHTML}
-        💸 Rent: ${apartment.rent}<br/>
-        📞 Contact: <a href="tel:${apartment.contact}">${apartment.contact}</a><br/>
-        ${mapBtn}
-        <div class="popup-controls">
-          <button onclick="editApartment(${marker._leaflet_id})">Edit</button>
-          <button onclick="deleteApartment(${marker._leaflet_id})">Delete</button>
-        </div>
-      </div>
-    `;
-  }
-
-  function loadApartments() {
-    fetch(scriptURL)
-      .then(response => response.json())
-      .then(data => {
-        console.log('Fetched apartment data:', data);
-        data.forEach(apartment => {
-          const lat = parseFloat(apartment.lat);
-          const lng = parseFloat(apartment.lng);
-          if (isNaN(lat) || isNaN(lng)) return;
-
-          const marker = L.marker([lat, lng]).addTo(map);
-          marker.apartment = apartment;
-          marker.bindPopup(createPopupContent(apartment, marker));
-          markers.push(marker);
-        });
-      })
-      .catch(error => {
-        console.error('Failed to load apartment data:', error);
-      });
-  }
-
-  loadApartments();
-
-  function compressImage(file, callback) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const img = new Image();
-      img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const scale = 800 / Math.max(img.width, img.height);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(blob => callback(blob), 'image/jpeg', 0.7);
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function uploadImages(files, callback) {
-    const uploads = Array.from(files).map(file => new Promise(resolve => {
-      compressImage(file, compressed => {
-        const formData = new FormData();
-        formData.append('upload_preset', 'apartment_upload');
-        formData.append('file', compressed);
-        fetch('https://api.cloudinary.com/v1_1/dmcgzek1a/image/upload', {
-          method: 'POST',
-          body: formData
-        })
-        .then(res => res.json())
-        .then(data => resolve(data.secure_url));
-      });
-    }));
-    Promise.all(uploads).then(callback);
-  }
-
-  function s
