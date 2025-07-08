@@ -152,7 +152,7 @@ function createPopupContent(apartment, marker) {
     <div style="max-width: 250px;">
       <strong>${apartment.name}</strong><br/>
       ${imageHTML}
-      💸 Rent: <a href="${apartment.rent}" target="_blank">${apartment.rent}</a><br/>
+      map link: <a href="${apartment.rent}" target="_blank">${apartment.rent}</a><br/>
       📞 Contact: <a href="tel:${apartment.contact}">${apartment.contact}</a>
       <div class="popup-controls">
         <button onclick="editApartment(${marker._leaflet_id})">Edit</button>
