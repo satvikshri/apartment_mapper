@@ -143,7 +143,7 @@
     }
 
     function loadApartments() {
-      fetch(scriptURL)
+      fetch(scriptURL) console.log(JSON.stringify(data, null, 2));
         .then(response => response.json())
         .then(data => {
           console.log('Fetched apartment data:', data);
