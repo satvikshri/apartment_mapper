@@ -110,6 +110,7 @@
   <input id="coordinates" placeholder="Latitude, Longitude" required />
   <input id="rent" placeholder="Rent Info and map link" required />
   <input id="contact" placeholder="Contact Number" required />
+  <input id="mapLink" placeholder="Google Maps link (optional)" />
   <input id="images" type="file" multiple accept="image/*" />
   <button onclick="submitForm()" id="submit-button">Add Apartment</button>
 </div>
@@ -148,18 +149,24 @@
   function createPopupContent(apartment, marker) {
     const images = apartment.image?.split(',') || [];
     const imageHTML = images.map(img => `<img class="popup-img" src="${img}" alt="Apartment Image"/>`).join('');
-    return `
+    let content = `
       <div style="max-width: 250px;">
         <strong>${apartment.name}</strong><br/>
         ${imageHTML}
         💸 Rent: ${apartment.rent}<br/>
-        📞 Contact: <a href="tel:${apartment.contact}">${apartment.contact}</a>
+        📞 Contact: <a href="tel:${apartment.contact}">${apartment.contact}</a><br/>
+    `;
+    if (apartment.mapLink) {
+      content += `<a href="${apartment.mapLink}" target="_blank"><button>Go to Maps</button></a><br/>`;
+    }
+    content += `
         <div class="popup-controls">
           <button onclick="editApartment(${marker._leaflet_id})">Edit</button>
           <button onclick="deleteApartment(${marker._leaflet_id})">Delete</button>
         </div>
       </div>
     `;
+    return content;
   }
 
   function loadApartments() {
@@ -235,9 +242,9 @@
     const name = document.getElementById('name').value;
     const coordStr = document.getElementById('coordinates').value;
     const [lat, lng] = coordStr.split(',').map(c => parseFloat(c.trim()));
-    console.log({lat, lng});
     const rent = document.getElementById('rent').value;
     const contact = document.getElementById('contact').value;
+    const mapLink = document.getElementById('mapLink').value;
     const imageFiles = document.getElementById('images').files;
 
     if (!name || isNaN(lat) || isNaN(lng)) {
@@ -252,7 +259,7 @@
 
     uploadImages(imageFiles, urls => {
       const image = urls.join(',');
-      const apartment = { name,lat, lng, rent, contact, image };
+      const apartment = { name, lat, lng, rent, contact, image, mapLink };
       console.log('Sending to sheet:', apartment);
 
       if (editingMarker) {
@@ -285,6 +292,7 @@
       document.getElementById('coordinates').value = '';
       document.getElementById('rent').value = '';
       document.getElementById('contact').value = '';
+      document.getElementById('mapLink').value = '';
       document.getElementById('images').value = '';
     });
   }
