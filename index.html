@@ -235,6 +235,7 @@
     const name = document.getElementById('name').value;
     const coordStr = document.getElementById('coordinates').value;
     const [lat, lng] = coordStr.split(',').map(c => parseFloat(c.trim()));
+    console.log({lat, lng});
     const rent = document.getElementById('rent').value;
     const contact = document.getElementById('contact').value;
     const imageFiles = document.getElementById('images').files;
@@ -251,7 +252,7 @@
 
     uploadImages(imageFiles, urls => {
       const image = urls.join(',');
-      const apartment = { name, coordinates: coordStr, rent, contact, image };
+      const apartment = { name,lat, lng, rent, contact, image };
       console.log('Sending to sheet:', apartment);
 
       if (editingMarker) {
